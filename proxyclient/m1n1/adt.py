@@ -809,24 +809,20 @@ class ADTNode:
         self[name] = node
         return node
 
-    def pmgr_init(self):
-        self.pmgr_u8id = (self["/arm-io/pmgr"].devices[0].id1 != self["/arm-io/pmgr"].devices[1].id1)
-
     def pmgr_dev_get_id(self, dev):
-        if self.pmgr_u8id:
+        if (self["/arm-io/pmgr"].devices[0].id1 != self["/arm-io/pmgr"].devices[1].id1):
             return dev.id1
         else:
             return dev.id2
 
     def pmgr_dev_get_parents(self, dev):
-        if self.pmgr_u8id:
+        if (self["/arm-io/pmgr"].devices[0].id1 != self["/arm-io/pmgr"].devices[1].id1):
             return dev.parents_un.u8id.parents 
         else:
             return dev.parents_un.u16id.parents 
 
 def load_adt(data):
     node = ADTNode(ADTNodeStruct.parse(data))
-    node.pmgr_init()
     return node
 
 if __name__ == "__main__":
