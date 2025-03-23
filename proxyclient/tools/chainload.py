@@ -95,10 +95,23 @@ if args.xnu:
 print("Setting secondary CPU RVBARs...")
 
 rvbar = entry & ~0xfff
+idx = -1
 for cpu in u.adt["cpus"]:
-    if cpu.state == "running":
-        continue
-    addr, size = cpu.cpu_impl_reg
+    
+    idx = idx + 1
+    try: 
+        addr, size = cpu.cpu_impl_reg
+    except:
+        reg = u.adt["arm-io"].reg
+        if (2*idx+2) < len(reg):
+            addr = u.adt["arm-io"].reg[2*idx+2]["addr"]
+        else:
+            continue
+
+    # See if cpu is locked 
+    if p.read64(addr) & 1: 
+        continue 
+    
     print(f"  {cpu.name}: [0x{addr:x}] = 0x{rvbar:x}")
     p.write64(addr, rvbar)
 
